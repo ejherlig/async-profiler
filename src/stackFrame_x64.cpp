@@ -14,6 +14,8 @@
 
 #ifdef __APPLE__
 #  define REG(l, m)  _ucontext->uc_mcontext->__ss.__##m
+#elif defined(__FreeBSD__)
+#  define REG(l, m) _ucontext->uc_mcontext.mc_##m
 #else
 #  define REG(l, m)  _ucontext->uc_mcontext.gregs[REG_##l]
 #endif
@@ -200,7 +202,7 @@ bool StackFrame::checkInterruptedSyscall() {
     } else {
         return retval() == (uintptr_t)-EINTR;
     }
-#else
+#elif defined(__linux__)
     if (retval() == (uintptr_t)-EINTR) {
         // Workaround for JDK-8237858: restart the interrupted poll() manually.
         // Check if the previous instruction is mov eax, SYS_poll with infinite timeout or

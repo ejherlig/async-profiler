@@ -88,6 +88,12 @@ ifeq ($(OS),Darwin)
     PACKAGE_NAME=async-profiler-$(PROFILER_VERSION)-$(OS_TAG)
     MERGE=false
   endif
+else ifeq ($(OS),FreeBSD)
+  CXXFLAGS += -D_FORTIFY_SOURCE -Wl,-z,defs -Wl,--exclude-libs,ALL  -fdata-sections -ffunction-sections -Wl,--gc-sections -ggdb  -ftrivial-auto-var-init=zero 
+    INCLUDES += -I/usr/local/openjdk21/include/freebsd
+    SOEXT=so
+    OS_TAG=freebsd
+    PACKAGE_EXT=tar.gz
 else
   CXXFLAGS += -U_FORTIFY_SOURCE -Wl,-z,defs -Wl,--exclude-libs,ALL -static-libstdc++ -static-libgcc -fdata-sections -ffunction-sections -Wl,--gc-sections -ggdb
   ifeq ($(MERGE),true)
@@ -207,7 +213,8 @@ build/$(CONVERTER_JAR): $(CONVERTER_SOURCES) $(RESOURCES)
 	$(RM) -r build/converter
 
 %.class: %.java
-	$(JAVAC) -source 7 -target 7 -Xlint:-options -g:none $^
+	$(JAVAC) -source 21 -target 21 -Xlint:-options -g:none $^
+	#$(JAVAC) -source 7 -target 7 -Xlint:-options -g:none $^
 
 build/test/cpptests: $(CPP_TEST_SOURCES) $(CPP_TEST_HEADER) $(SOURCES) $(HEADERS) $(RESOURCES) $(JAVA_HELPER_CLASSES)
 	mkdir -p build/test
